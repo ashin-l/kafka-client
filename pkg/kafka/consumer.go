@@ -29,7 +29,22 @@ func (h *ConsumerGroupHandler) ConsumeClaim(session sarama.ConsumerGroupSession,
 		uuid := gjson.GetBytes(message.Value, "uuid").String()
 		oid := gjson.GetBytes(message.Value, "oid").String()
 		icaoAddress := gjson.GetBytes(message.Value, "icaoAddress").String()
-		logger.Info("========= 收到消息", zap.String("topic", message.Topic), zap.String("deviceId", deviceId), zap.String("deviceName", deviceName), zap.String("uuid", uuid), zap.String("oid", oid), zap.String("icaoAddress", icaoAddress))
+		longitude := gjson.GetBytes(message.Value, "longitude").Float()
+		latitude := gjson.GetBytes(message.Value, "latitude").Float()
+		altitude := gjson.GetBytes(message.Value, "altitude").Float()
+		timestamp := gjson.GetBytes(message.Value, "timestamp").String()
+		logger.Info(
+			"========= 收到消息", 
+			zap.String("deviceId", deviceId), 
+			zap.String("deviceName", deviceName), 
+			zap.String("time", timestamp), 
+			zap.Float64("longitude", longitude), 
+			zap.Float64("latitude", latitude), 
+			zap.Float64("altitude", altitude), 
+			zap.String("uuid", uuid), 
+			zap.String("oid", oid), 
+			zap.String("icaoAddress", icaoAddress),
+		)
 	}
 	return nil
 }
