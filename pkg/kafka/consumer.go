@@ -22,17 +22,24 @@ func (h *ConsumerGroupHandler) Setup(sarama.ConsumerGroupSession) error   { retu
 func (h *ConsumerGroupHandler) Cleanup(sarama.ConsumerGroupSession) error { return nil }
 func (h *ConsumerGroupHandler) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	for message := range claim.Messages() {
-		logger.Debug("从Kafka接收到消息", zap.String("topic", message.Topic), zap.Int32("partition", message.Partition), zap.Int64("offset", message.Offset), zap.Int("len", len(message.Value)))
+		logger.Debug("从Kafka接收到消息", zap.String("topic", message.Topic), zap.Int32("partition", message.Partition), zap.Int64("offset", message.Offset), zap.Int("len", len(message.Value)), zap.String("message", string(message.Value)))
 		session.MarkMessage(message, "")
 		deviceId := gjson.GetBytes(message.Value, "deviceId").String()
 		deviceName := gjson.GetBytes(message.Value, "deviceName").String()
 		uuid := gjson.GetBytes(message.Value, "uuid").String()
 		oid := gjson.GetBytes(message.Value, "oid").String()
 		icaoAddress := gjson.GetBytes(message.Value, "icaoAddress").String()
-		longitude := gjson.GetBytes(message.Value, "longitude").Float()
-		latitude := gjson.GetBytes(message.Value, "latitude").Float()
-		altitude := gjson.GetBytes(message.Value, "altitude").Float()
+		longitude := gjson.GetBytes(message.Value, "uaLongitude").Float()
+		latitude := gjson.GetBytes(message.Value, "uaLatitude").Float()
+		altitude := gjson.GetBytes(message.Value, "geodeticAltitude").Float()
 		timestamp := gjson.GetBytes(message.Value, "timestamp").String()
+		if message.Topic == "yddk.radar.target" { 
+			jsonArr := gjson.GetBytes(message.Value, "targets").Array()
+			longitude = jsonArr[0].Get("uaLongitude").Float()
+			latitude = jsonArr[0].Get("uaLatitude").Float()
+			altitude = jsonArr[0].Get("uaAltitude").Float()
+			timestamp = jsonArr[0].Get("timestamp").String()
+		}
 		logger.Info(
 			"========= 收到消息", 
 			zap.String("deviceId", deviceId), 
