@@ -22,7 +22,7 @@ func (h *ConsumerGroupHandler) Setup(sarama.ConsumerGroupSession) error   { retu
 func (h *ConsumerGroupHandler) Cleanup(sarama.ConsumerGroupSession) error { return nil }
 func (h *ConsumerGroupHandler) ConsumeClaim(session sarama.ConsumerGroupSession, claim sarama.ConsumerGroupClaim) error {
 	for message := range claim.Messages() {
-		logger.Debug("从Kafka接收到消息", zap.String("topic", message.Topic), zap.Int32("partition", message.Partition), zap.Int64("offset", message.Offset), zap.Int("value", len(message.Value)))
+		logger.Debug("从Kafka接收到消息", zap.String("topic", message.Topic), zap.Int32("partition", message.Partition), zap.Int64("offset", message.Offset), zap.Int("len", len(message.Value)))
 		session.MarkMessage(message, "")
 		deviceId := gjson.GetBytes(message.Value, "deviceId").String()
 		deviceName := gjson.GetBytes(message.Value, "deviceName").String()
