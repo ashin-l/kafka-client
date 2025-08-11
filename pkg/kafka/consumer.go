@@ -42,6 +42,7 @@ func (h *ConsumerGroupHandler) ConsumeClaim(session sarama.ConsumerGroupSession,
 		}
 		logger.Info(
 			"========= 收到消息", 
+			zap.String("topic", message.Topic),
 			zap.String("deviceId", deviceId), 
 			zap.String("deviceName", deviceName), 
 			zap.String("time", timestamp), 
